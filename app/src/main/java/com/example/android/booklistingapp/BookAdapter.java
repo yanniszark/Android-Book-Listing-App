@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -50,9 +52,12 @@ public class BookAdapter extends ArrayAdapter<Book> {
         /*Display book publisher */
         holder.publisherTextView.setText(book.getPublisher());
         /* Display book publish date */
-        //TODO: Format Date
-        //TODO: Display Image
-        //holder.publishDateTextView.setText(book.getPublishDate());
+        holder.publishDateTextView.setText(book.getPublishDate());
+        /* Display Book Image */
+        Glide
+                .with(getContext())
+                .load(book.bookImageUrl)
+                .into(holder.bookImageView);
 
         return listItemView;
     }

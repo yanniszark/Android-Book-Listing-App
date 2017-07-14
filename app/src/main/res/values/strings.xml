@@ -5,6 +5,7 @@
     <string name="google_books_api_key">AIzaSyAitQMoAu2Sxt7DjZVeozK3tqMuCb6GoHo</string>
     <string name="menu_title">Book List</string>
     <string name="search_hint">Search a book...</string>
+    <string name="dismiss_popup">Return</string>
 
     <string name="label_search_activity_main">LabelSearchMainActivity</string>
 </resources>

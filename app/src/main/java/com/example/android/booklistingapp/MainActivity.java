@@ -8,15 +8,25 @@ import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +79,70 @@ public class MainActivity extends AppCompatActivity
 
         /* Create a new book adapter */
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
+
         /* Bind adapter to ListView */
         bookList.setAdapter(mAdapter);
+
+        /* Set click listener to display popup window on click */
+        bookList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Book book = (Book) adapterView.getItemAtPosition(i);
+                 /* Inflate a new popup window */
+                LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                View bookDetailsView = inflater.inflate(R.layout.book_details_popup, null);
+
+
+                /* Create new popup window */
+                final PopupWindow mPopupWindow = new PopupWindow(
+                        bookDetailsView,
+                        RelativeLayout.LayoutParams.MATCH_PARENT,
+                        RelativeLayout.LayoutParams.MATCH_PARENT,
+                        true
+                );
+
+
+                /* Find the relevant views to update */
+                TextView titleTextView = (TextView) bookDetailsView.findViewById(R.id.book_title);
+                TextView authorTextView = (TextView) bookDetailsView.findViewById(R.id.book_author);
+                ImageView bookImageView = (ImageView) bookDetailsView.findViewById(R.id.book_image);
+                TextView publisherTextView = (TextView) bookDetailsView.findViewById(R.id.book_publisher);
+                TextView publishDateTextView = (TextView) bookDetailsView.findViewById(R.id.book_publish_date);
+                TextView descriptionTextView = (TextView) bookDetailsView.findViewById(R.id.book_description);
+                Button popupDismissButton = (Button) bookDetailsView.findViewById(R.id.popup_dismiss_button);
+
+                /* Set title */
+                titleTextView.setText(book.getTitle());
+                /* Display book author */
+                authorTextView.setText(book.getAuthorsLine());
+                 /*Display book publisher */
+                publisherTextView.setText(book.getPublisher());
+                 /* Display book publish date */
+                publishDateTextView.setText(book.getPublishDate());
+                /* Display book description */
+                descriptionTextView.setText(book.getDescription());
+                /* Display Book Image */
+                Glide
+                        .with(getApplicationContext())
+                        .load(book.bookImageUrl)
+                        .into(bookImageView);
+                /* Set dismiss button listener */
+                popupDismissButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mPopupWindow.dismiss();
+                    }
+                });
+
+                if (Build.VERSION.SDK_INT >= 21) {
+                    mPopupWindow.setElevation(6.0f);
+                }
+
+                /* Display popup */
+                mPopupWindow.showAtLocation( ((RelativeLayout) findViewById(R.id.activity_main)), Gravity.CENTER, 0, 0);
+
+            }
+        });
 
         // Get a reference to the ConnectivityManager to check state of network connectivity
         ConnectivityManager connMgr = (ConnectivityManager)
@@ -98,6 +170,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void searchForBooks(){
+        mAdapter.clear();
         loadingIndicatorView.setVisibility(View.VISIBLE);
         emptyStateTextView.setVisibility(View.GONE);
         // Get a reference to the ConnectivityManager to check state of network connectivity
