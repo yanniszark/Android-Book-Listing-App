@@ -1,15 +1,19 @@
 package com.example.android.booklistingapp;
 
 import android.app.LoaderManager;
+import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,6 +28,10 @@ public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<List<Book>> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    private static final String DEFAULT_QUERY = "android";
+
+    private String query = DEFAULT_QUERY;
 
     /**
      * URL for earthquake data from the USGS dataset
@@ -59,14 +67,10 @@ public class MainActivity extends AppCompatActivity
 
         ButterKnife.bind(this);
 
-        /* Get the book data */
-
-
         /* Create a new book adapter */
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
         /* Bind adapter to ListView */
         bookList.setAdapter(mAdapter);
-
 
         // Get a reference to the ConnectivityManager to check state of network connectivity
         ConnectivityManager connMgr = (ConnectivityManager)
@@ -86,11 +90,33 @@ public class MainActivity extends AppCompatActivity
         } else {
             // Otherwise, display error
             // First, hide loading indicator so error message will be visible
-            View loadingIndicator = findViewById(R.id.loading_indicator);
-            loadingIndicator.setVisibility(View.GONE);
+            loadingIndicatorView.setVisibility(View.GONE);
 
             // Update empty state with no connection error message
             emptyStateTextView.setText(R.string.device_offline);
+        }
+    }
+
+    public void searchForBooks(){
+        loadingIndicatorView.setVisibility(View.VISIBLE);
+        emptyStateTextView.setVisibility(View.GONE);
+        // Get a reference to the ConnectivityManager to check state of network connectivity
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // Get details on the currently active default data network
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        // If there is a network connection, fetch data
+        if (networkInfo != null && networkInfo.isConnected()) {
+            getLoaderManager().restartLoader(BOOK_LOADER_ID, null, this);
+        } else {
+            // Otherwise, display error
+            // First, hide loading indicator so error message will be visible
+            loadingIndicatorView.setVisibility(View.GONE);
+
+            // Update empty state with no connection error message
+            emptyStateTextView.setText(R.string.device_offline);
+            emptyStateTextView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -102,7 +128,7 @@ public class MainActivity extends AppCompatActivity
         /* API key */
         uriBuilder.appendQueryParameter("key", getResources().getString(R.string.google_books_api_key));
         /* User search term */
-        uriBuilder.appendQueryParameter("q", "quilting");
+        uriBuilder.appendQueryParameter("q", query);
         /* Number of results */
         uriBuilder.appendQueryParameter("maxResults", "10");
 
@@ -134,6 +160,32 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoaderReset(Loader<List<Book>> loader) {
+        mAdapter.clear();
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        return true;
+    }
+
+    /**
+     * Handle new intent when user searches for something new
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            query = intent.getStringExtra(SearchManager.QUERY);
+            searchForBooks();
+        }
     }
 }

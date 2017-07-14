@@ -198,7 +198,14 @@ public final class QueryUtils {
                 String publishedDate = volumeInfo.getString("publishedDate");
 
                 // Extract the value for the key called "description"
-                String description = volumeInfo.getString("description");
+                String description;
+                try {
+                    description = volumeInfo.getString("description");
+                }
+                catch (JSONException e){
+                    Log.v("QueryUtils", "No description found");
+                    description = "";
+                }
 
                 // Extract the value for the image url
                 JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");
