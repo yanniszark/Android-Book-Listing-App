@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Book Listing App</string>
+    <string name="no_books_found">No Books Found</string>
+    <string name="device_offline">Could not connect to network</string>
+    <string name="google_books_api_key">AIzaSyAitQMoAu2Sxt7DjZVeozK3tqMuCb6GoHo</string>
+</resources>
