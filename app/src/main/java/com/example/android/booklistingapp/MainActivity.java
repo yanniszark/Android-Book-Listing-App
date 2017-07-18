@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity
                 /* Display Book Image */
                 Glide
                         .with(getApplicationContext())
-                        .load(book.bookImageUrl)
+                        .load(book.getBookImageUrl())
                         .into(bookImageView);
                 /* Set dismiss button listener */
                 popupDismissButton.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 /* Display popup */
-                mPopupWindow.showAtLocation( ((RelativeLayout) findViewById(R.id.activity_main)), Gravity.CENTER, 0, 0);
+                mPopupWindow.showAtLocation(((RelativeLayout) findViewById(R.id.activity_main)), Gravity.CENTER, 0, 0);
 
             }
         });
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void searchForBooks(){
+    public void searchForBooks() {
         mAdapter.clear();
         loadingIndicatorView.setVisibility(View.VISIBLE);
         emptyStateTextView.setVisibility(View.GONE);
@@ -226,8 +226,7 @@ public class MainActivity extends AppCompatActivity
         if (books != null && !books.isEmpty()) {
             emptyStateTextView.setVisibility(View.GONE);
             mAdapter.addAll(books);
-        }
-        else
+        } else
             emptyStateTextView.setVisibility(View.VISIBLE);
     }
 

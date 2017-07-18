@@ -169,6 +169,9 @@ public final class QueryUtils {
 
             // Extract the JSONArray associated with the key called "items",
             // which represents a list of books.
+            if (!baseJsonResponse.has("items"))
+                return books;
+
             JSONArray bookArray = baseJsonResponse.getJSONArray("items");
 
             // For each book in the bookArray, create an {@link Book} object
@@ -186,10 +189,12 @@ public final class QueryUtils {
                 String title = volumeInfo.getString("title");
 
                 // Extract the value for the key called "author"
-                JSONArray authorsArray = volumeInfo.getJSONArray("authors");
                 ArrayList<String> authors = new ArrayList<>();
-                for (int j = 0; j < authorsArray.length(); j++)
-                    authors.add(authorsArray.getString(j));
+                if (volumeInfo.has("authors")) {
+                    JSONArray authorsArray = volumeInfo.getJSONArray("authors");
+                    for (int j = 0; j < authorsArray.length(); j++)
+                        authors.add(authorsArray.getString(j));
+                }
 
                 // Extract the value for the key called "publisher"
                 String publisher = volumeInfo.getString("publisher");
@@ -198,14 +203,9 @@ public final class QueryUtils {
                 String publishedDate = volumeInfo.getString("publishedDate");
 
                 // Extract the value for the key called "description"
-                String description;
-                try {
+                String description = "";
+                if (volumeInfo.has("description"))
                     description = volumeInfo.getString("description");
-                }
-                catch (JSONException e){
-                    Log.v("QueryUtils", "No description found");
-                    description = "";
-                }
 
                 // Extract the value for the image url
                 JSONObject imageLinks = volumeInfo.getJSONObject("imageLinks");

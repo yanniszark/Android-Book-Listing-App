@@ -68,6 +68,8 @@ public class Book {
     }
 
     public String getAuthorsLine(){
+        if (authors.isEmpty())
+            return "";
         StringBuilder builder = new StringBuilder();
         for (String author : authors){
             builder.append(author + ", ");
